@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Link ke Manifest File -->
+    <link rel="manifest" href="manifest.json">
+    <!-- Warna tema untuk browser di ponsel -->
+    <meta name="theme-color" content="#0891b2"/>
+    <title>Kalkulator Tray Distribusi</title>
+    <!-- Memuat Tailwind CSS untuk styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icon untuk tab browser -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+    <style>
+        /* Menggunakan font Inter sebagai default */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style untuk number input agar tidak ada panah default */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl mx-auto">
+        <div class="bg-slate-800 rounded-2xl shadow-2xl p-6 md:p-8">
+            <header class="text-center mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">Kalkulator Tray Distribusi</h1>
+                <p class="text-slate-400 mt-2">Masukkan jumlah per unit untuk menghitung total tray.</p>
+            </header>
+
+            <main>
+                <!-- Bagian Display Total -->
+                <section id="total-display" class="bg-slate-900/50 rounded-xl p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                        <div>
+                            <h2 class="text-sm font-medium text-slate-400 uppercase tracking-wider">Total Keseluruhan</h2>
+                            <div class="my-2">
+                                <span id="total-trays" class="text-6xl font-bold text-white transition-all duration-200">0</span>
+                                <span class="text-lg text-slate-300 ml-1">Tray</span>
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-700 md:border-t-0 md:border-l md:border-slate-700 pt-6 md:pt-0 md:pl-6">
+                             <h2 class="text-sm font-medium text-slate-400 uppercase tracking-wider">Target</h2>
+                             <input type="number" id="target-input" placeholder="Masukkan Target" class="w-full bg-slate-800 text-white text-center text-3xl font-bold rounded-md p-2 mt-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                             <div id="shortfall-display" class="mt-2 text-amber-400 h-6"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Bagian Tombol Operasi -->
+                <section id="controls" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Kontrol Kontainer -->
+                    <div class="bg-slate-700/50 rounded-lg p-4 flex flex-col items-center">
+                        <h3 class="font-semibold mb-3 text-cyan-400">Kontainer</h3>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="updateKontainer(-1)" class="bg-red-600 hover:bg-red-700 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">-</button>
+                            <span id="kontainer-count" class="text-3xl font-bold w-16 text-center">0</span>
+                            <button onclick="updateKontainer(1)" class="bg-cyan-600 hover:bg-cyan-700 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">+</button>
+                        </div>
+                         <p class="text-xs text-slate-400 mt-2">(1 Kontainer = 24 Tray)</p>
+                         <button onclick="resetKontainer()" class="text-xs text-slate-400 hover:text-white mt-3 bg-slate-600/50 px-3 py-1 rounded-md">Reset</button>
+                    </div>
+                    <!-- Kontrol Ikat -->
+                    <div class="bg-slate-700/50 rounded-lg p-4 flex flex-col items-center">
+                        <h3 class="font-semibold mb-3 text-amber-400">Ikat</h3>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="updateIkat(-1)" class="bg-red-600 hover:bg-red-700 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">-</button>
+                             <span id="ikat-count" class="text-3xl font-bold w-16 text-center">0</span>
+                            <button onclick="updateIkat(1)" class="bg-amber-500 hover:bg-amber-600 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">+</button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">(1 Ikat = 5 Tray)</p>
+                        <button onclick="resetIkat()" class="text-xs text-slate-400 hover:text-white mt-3 bg-slate-600/50 px-3 py-1 rounded-md">Reset</button>
+                    </div>
+                    <!-- Kontrol Tray -->
+                    <div class="bg-slate-700/50 rounded-lg p-4 flex flex-col items-center">
+                        <h3 class="font-semibold mb-3 text-emerald-400">Tray</h3>
+                        <div class="flex items-center space-x-3">
+                            <button onclick="updateTray(-1)" class="bg-red-600 hover:bg-red-700 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">-</button>
+                            <span id="tray-count" class="text-3xl font-bold w-16 text-center">0</span>
+                            <button onclick="updateTray(1)" class="bg-emerald-500 hover:bg-emerald-600 rounded-full w-12 h-12 text-2xl font-bold transition-transform transform hover:scale-105">+</button>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-2">(1 Tray = 1 Tray)</p>
+                        <button onclick="resetTray()" class="text-xs text-slate-400 hover:text-white mt-3 bg-slate-600/50 px-3 py-1 rounded-md">Reset</button>
+                    </div>
+                </section>
+
+                 <!-- Tombol Reset Semua -->
+                <div class="text-center mt-8">
+                    <button onclick="resetAll()" class="bg-slate-600 hover:bg-slate-700 text-slate-300 rounded-md py-2 px-6 font-medium transition">Reset Semua</button>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div id="confirmation-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 hidden transition-opacity duration-300">
+        <div class="bg-slate-800 rounded-lg shadow-xl w-full max-w-sm p-6 text-center transform transition-all scale-95 opacity-0" id="modal-content">
+            <p id="modal-message" class="text-white text-lg mb-6">Anda yakin ingin melanjutkan?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="modal-cancel-btn" class="bg-slate-600 hover:bg-slate-700 text-slate-300 rounded-md py-2 px-6 font-medium transition">Batal</button>
+                <button id="modal-confirm-btn" class="bg-red-600 hover:bg-red-700 text-white rounded-md py-2 px-6 font-medium transition">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Pendaftaran Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('ServiceWorker pendaftaran berhasil: ', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker pendaftaran gagal: ', err);
+                });
+            });
+        }
+
+        // --- Konfigurasi Nilai ---
+        const KONTANINER_VALUE = 24;
+        const IKAT_VALUE = 5;
+
+        // --- State Aplikasi (Penghitung Individual) ---
+        let kontainerCount = 0;
+        let ikatCount = 0;
+        let trayCount = 0;
+
+        // --- Referensi Elemen DOM ---
+        const totalTraysEl = document.getElementById('total-trays');
+        const kontainerCountEl = document.getElementById('kontainer-count');
+        const ikatCountEl = document.getElementById('ikat-count');
+        const trayCountEl = document.getElementById('tray-count');
+        const targetInputEl = document.getElementById('target-input');
+        const shortfallDisplayEl = document.getElementById('shortfall-display');
+        
+        // --- Referensi Modal DOM ---
+        const modalEl = document.getElementById('confirmation-modal');
+        const modalContentEl = document.getElementById('modal-content');
+        const modalMessageEl = document.getElementById('modal-message');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+
+        let onConfirmCallback = null;
+
+        // --- Fungsi Logika ---
+
+        /**
+         * Menampilkan modal konfirmasi dengan pesan dan aksi tertentu.
+         * @param {string} message - Pesan yang akan ditampilkan di modal.
+         * @param {function} callback - Fungsi yang akan dijalankan jika pengguna menekan "Ya".
+         */
+        function showConfirmationModal(message, callback) {
+            modalMessageEl.textContent = message;
+            onConfirmCallback = callback;
+            modalEl.classList.remove('hidden');
+            setTimeout(() => { // Memberi sedikit waktu untuk transisi
+                modalEl.style.opacity = '1';
+                modalContentEl.style.transform = 'scale(1)';
+                modalContentEl.style.opacity = '1';
+            }, 10);
+        }
+
+        /**
+         * Menyembunyikan modal konfirmasi.
+         */
+        function hideConfirmationModal() {
+            modalEl.style.opacity = '0';
+            modalContentEl.style.transform = 'scale(0.95)';
+            modalContentEl.style.opacity = '0';
+            setTimeout(() => {
+                modalEl.classList.add('hidden');
+                onConfirmCallback = null;
+            }, 300); // Sesuaikan dengan durasi transisi
+        }
+
+        modalConfirmBtn.addEventListener('click', () => {
+            if (onConfirmCallback) {
+                onConfirmCallback();
+            }
+            hideConfirmationModal();
+        });
+
+        modalCancelBtn.addEventListener('click', hideConfirmationModal);
+        
+        // Menutup modal jika klik di luar area konten
+        modalEl.addEventListener('click', (event) => {
+            if (event.target === modalEl) {
+                hideConfirmationModal();
+            }
+        });
+
+        /**
+         * Memperbarui seluruh tampilan UI berdasarkan state saat ini.
+         */
+        function render() {
+            // Update tampilan penghitung
+            kontainerCountEl.textContent = kontainerCount;
+            ikatCountEl.textContent = ikatCount;
+            trayCountEl.textContent = trayCount;
+
+            // Kalkulasi total
+            const total = (kontainerCount * KONTANINER_VALUE) + (ikatCount * IKAT_VALUE) + trayCount;
+            totalTraysEl.textContent = total;
+
+            // Kalkulasi dan tampilkan kekurangan atau kelebihan target
+            const target = parseInt(targetInputEl.value, 10) || 0;
+            const shortfall = target - total;
+
+            if (target > 0) {
+                if (shortfall > 0) {
+                    shortfallDisplayEl.textContent = `Kurang ${shortfall} tray`;
+                    shortfallDisplayEl.classList.remove('text-emerald-400');
+                    shortfallDisplayEl.classList.add('text-amber-400');
+                } else if (shortfall < 0) {
+                    shortfallDisplayEl.textContent = `Lebih ${Math.abs(shortfall)} tray`;
+                    shortfallDisplayEl.classList.remove('text-amber-400');
+                    shortfallDisplayEl.classList.add('text-emerald-400');
+                } else {
+                    shortfallDisplayEl.textContent = 'Target Tercapai!';
+                    shortfallDisplayEl.classList.remove('text-amber-400');
+                    shortfallDisplayEl.classList.add('text-emerald-400');
+                }
+            } else {
+                shortfallDisplayEl.textContent = ''; // Kosongkan jika tidak ada target
+            }
+        }
+        
+        // --- Event Listener untuk Input Target ---
+        targetInputEl.addEventListener('input', render);
+
+
+        // --- Fungsi untuk memperbarui setiap unit ---
+        
+        function updateKontainer(amount) {
+            kontainerCount += amount;
+            if (kontainerCount < 0) kontainerCount = 0;
+            render();
+        }
+        
+        function updateIkat(amount) {
+            ikatCount += amount;
+            if (ikatCount < 0) ikatCount = 0;
+            render();
+        }
+
+        function updateTray(amount) {
+            trayCount += amount;
+            if (trayCount < 0) trayCount = 0;
+            render();
+        }
+
+        /**
+         * Mereset penghitung individual dengan konfirmasi.
+         */
+        function resetKontainer() {
+            showConfirmationModal('Anda yakin ingin mereset penghitung Kontainer?', () => {
+                kontainerCount = 0;
+                render();
+            });
+        }
+
+        function resetIkat() {
+            showConfirmationModal('Anda yakin ingin mereset penghitung Ikat?', () => {
+                ikatCount = 0;
+                render();
+            });
+        }
+
+        function resetTray() {
+            showConfirmationModal('Anda yakin ingin mereset penghitung Tray?', () => {
+                trayCount = 0;
+                render();
+            });
+        }
+
+        /**
+         * Mereset semua penghitung dan tampilan dengan konfirmasi.
+         */
+        function resetAll() {
+            showConfirmationModal('Anda yakin ingin mereset SEMUA penghitung?', () => {
+                kontainerCount = 0;
+                ikatCount = 0;
+                trayCount = 0;
+                targetInputEl.value = ''; // Reset juga input target
+                render();
+            });
+        }
+
+        // --- Inisialisasi ---
+        document.addEventListener('DOMContentLoaded', render);
+    </script>
+
+</body>
+</html>
+
+

@@ -1,0 +1,21 @@
+{
+  "name": "Kalkulator Tray Distribusi",
+  "short_name": "Kalkulator Tray",
+  "description": "Kalkulator untuk menghitung total tray telur untuk kebutuhan distribusi.",
+  "start_url": "./kalkulator-tray-individu.html",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#0891b2",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/0891b2/ffffff?text=Tray",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://placehold.co/512x512/0891b2/ffffff?text=Tray",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
