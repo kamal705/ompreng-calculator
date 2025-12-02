@@ -2,7 +2,7 @@
   "name": "Kalkulator Tray Distribusi",
   "short_name": "Kalkulator Tray",
   "description": "Kalkulator untuk menghitung total tray telur untuk kebutuhan distribusi.",
-  "start_url": "./kalkulator-tray-individu.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1e293b",
   "theme_color": "#0891b2",
